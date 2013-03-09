@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/menuScan" android:title="Scan to Connect"></item>
+    <item android:id="@+id/menuConnect" android:title="Re-Connect"></item>
+    <item android:id="@+id/menuDisconnect" android:title="Disconnect"></item>
+    <item android:id="@+id/menuHelp" android:title="Help">
+        <menu>
+            <item android:id="@+id/infoConnections" android:title="Connections"/>
+            <item android:id="@+id/infoData" android:title="Acquiring Data"/>
+            <item android:id="@+id/infoGraphing" android:title="Graphing"/>
+            <item android:id="@+id/infoSensors" android:title="Sensors"/>
+        </menu>
+    </item>
+</menu>

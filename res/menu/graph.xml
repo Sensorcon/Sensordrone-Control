@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/sampleRate" android:title="Data Rate">
+        <menu>
+            <item android:id="@+id/rate1000" android:title="Default" /><item android:id="@+id/rate300" android:title="Fast" /><item android:id="@+id/rate100" android:title="Faster"/>
+            <item android:id="@+id/menuTip" android:title="Tip"/>
+            
+            
+        </menu>
+    </item>
+    <item android:id="@+id/range" android:title="Graph Ranges">
+        <menu>
+            <item android:id="@+id/menuUpper" android:title="Change Upper Limit"/>
+            <item android:id="@+id/menuLower" android:title="Change Lower Limit"/>
+        </menu>
+    </item>
+    
+
+</menu>
