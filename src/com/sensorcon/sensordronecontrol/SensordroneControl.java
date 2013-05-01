@@ -13,9 +13,12 @@ import com.sensorcon.sdhelper.SDHelper;
 import com.sensorcon.sdhelper.SDStreamer;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
@@ -47,6 +50,11 @@ import android.widget.TableRow.LayoutParams;
  */
 public class SensordroneControl extends Activity {
 
+	/*
+	 * Preferences for Units
+	 */
+	SharedPreferences unitPreferences;
+	
 	/*
 	 * We put our Drone object in a class that extends Application so it
 	 * can be accessed in multiple activities.
@@ -406,7 +414,17 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void altitudeMeasured(EventObject arg0) {
-					tvUpdate(tvSensorValues[8], String.format("%.0f", droneApp.myDrone.altitude_Feet) + " Ft");
+					int pref = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
+					if (pref == SDPreferences.FEET) {
+						tvUpdate(tvSensorValues[8], String.format("%.0f", droneApp.myDrone.altitude_Feet) + " Ft");
+					} else if (pref == SDPreferences.MILES) {
+						tvUpdate(tvSensorValues[8], String.format("%.02f", droneApp.myDrone.altitude_Feet * 0.000189394) + " Mi");
+					} else if (pref == SDPreferences.METER) {
+						tvUpdate(tvSensorValues[8], String.format("%.0f", droneApp.myDrone.altitude_Meters) + " m");
+					} else if (pref == SDPreferences.KILOMETER) {
+						tvUpdate(tvSensorValues[8], String.format("%.03f", droneApp.myDrone.altitude_Meters / 1000) + " km");
+					}
+					
 					streamerArray[8].streamHandler.postDelayed(streamerArray[8], droneApp.streamingRate);
 
 				}
@@ -420,6 +438,15 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void connectEvent(EventObject arg0) {
+					
+					// Since we are adding SharedPreferences to store unit preferences,
+					// we might as well store the last MAC there. Now we can press re-connect
+					// to always try and connect to the last Drone (not just the last one per
+					// app instance)
+					
+					Editor prefEditor = unitPreferences.edit();
+					prefEditor.putString("LASTMAC", droneApp.myDrone.lastMAC);
+					prefEditor.commit();
 					
 					// Things to do when we connect to a Sensordrone
 					quickMessage("Connected!");
@@ -498,7 +525,14 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void irTemperatureMeasured(EventObject arg0) {
-					tvUpdate(tvSensorValues[3], String.format("%.1f", droneApp.myDrone.irTemperature_Farenheit) + " \u00B0F");
+					int pref = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+					if (pref == SDPreferences.FARENHEIT) {
+						tvUpdate(tvSensorValues[3], String.format("%.1f", droneApp.myDrone.irTemperature_Farenheit) + " \u00B0F");
+					} else if (pref == SDPreferences.CELCIUS) {
+						tvUpdate(tvSensorValues[3], String.format("%.1f", droneApp.myDrone.irTemperature_Celcius) + " \u00B0C");
+					} else if (pref == SDPreferences.KELVIN) {
+						tvUpdate(tvSensorValues[3], String.format("%.1f", droneApp.myDrone.irTemperature_Kelvin) + " K");
+					}
 					streamerArray[3].streamHandler.postDelayed(streamerArray[3], droneApp.streamingRate);
 
 				}
@@ -512,7 +546,18 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void pressureMeasured(EventObject arg0) {
-					tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Pascals) + " Pa");
+					int pref = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
+					if (pref == SDPreferences.PASCAL) {
+						tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Pascals) + " Pa");
+					} else if (pref == SDPreferences.KILOPASCAL) {
+						tvUpdate(tvSensorValues[2], String.format("%.3f", droneApp.myDrone.pressure_Pascals / 1000) + " kPa");
+					} else if (pref == SDPreferences.ATMOSPHERE) {
+						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Atmospheres) + " Atm");
+					} else if (pref == SDPreferences.MMHG) {
+						tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Torr) + " mmHg");
+					} else if (pref == SDPreferences.INHG) {
+						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Torr * 0.0393700732914) + "inHg");
+					}
 					streamerArray[2].streamHandler.postDelayed(streamerArray[2], droneApp.streamingRate);
 
 				}
@@ -536,7 +581,17 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void temperatureMeasured(EventObject arg0) {
-					tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Farenheit) + "  \u00B0F");
+					int pref = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+					if (pref == SDPreferences.FARENHEIT) {
+						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Farenheit) + "  \u00B0F");
+					} else if (pref == SDPreferences.CELCIUS) {
+						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Celcius) + "  \u00B0C");
+					} else if (pref == SDPreferences.KELVIN) {
+						// There is an error in SDAndroidLib-1.1.1
+						// It converts Kelvin by subtracting 273.5 9 from the Celcius value instead of adding).
+						// This will be fixed in the library in the future, but we fix it here for now
+						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Kelvin + 273.5 + 273.5) + "  K");
+					}
 					streamerArray[0].streamHandler.postDelayed(streamerArray[0], droneApp.streamingRate);
 
 				}
@@ -779,6 +834,9 @@ public class SensordroneControl extends Activity {
 		// Set up out AlertInfo
 		myInfo = new AlertInfo(this);
 
+		// Initialize SharedPreferences
+		unitPreferences  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
 		
 		/*
 		 * If we have destroyed and recreated our activity, due to something like
@@ -950,8 +1008,10 @@ public class SensordroneControl extends Activity {
 		case R.id.menuConnect:
 			if (!droneApp.myDrone.isConnected) {
 				// This option is used to re-connect to the last connected MAC
-				if (!droneApp.myDrone.lastMAC.equals("")) {
-					if (!droneApp.myDrone.btConnect(droneApp.myDrone.lastMAC)) {
+				// from our SharedPreferences
+				String prefLastMAC = unitPreferences.getString("LASTMAC", "");
+				if (!prefLastMAC.equals("")) {
+					if (!droneApp.myDrone.btConnect(prefLastMAC)) {
 						myInfo.connectFail();
 					}
 				} else {
@@ -979,6 +1039,12 @@ public class SensordroneControl extends Activity {
 				quickMessage("Please disconnect first");
 			}
 			break;
+			
+		case R.id.unitPrefs:
+			Intent unitIntent = new Intent(getApplicationContext(), PrefsActivity.class);
+			startActivity(unitIntent);
+			break;
+
 			
 			//Help Menu items
 		case R.id.infoConnections:

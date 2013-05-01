@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sensorcon.sensordronecontrol"
     android:versionCode="5"
@@ -6,31 +7,30 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="10" />
-    
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
- 	<uses-permission android:name="android.permission.BLUETOOTH"/>
 
- 	
- 	
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <application
+        android:name="com.sensorcon.sensordronecontrol.DroneApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" 
-        android:name=".DroneApplication"
-        
-        >
+        android:theme="@style/AppTheme" >
         <activity
-            android:name=".SensordroneControl"
-            android:label="@string/title_activity_sensordrone_control"
-            
-              >
-               
+            android:name="com.sensorcon.sensordronecontrol.SensordroneControl"
+            android:label="@string/title_activity_sensordrone_control" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GraphActivity"></activity>
+        <activity android:name="com.sensorcon.sensordronecontrol.GraphActivity" >
+        </activity>
+        <activity
+            android:name="com.sensorcon.sensordronecontrol.PrefsActivity"
+            android:label="@string/title_activity_prefs" >
+        </activity>
     </application>
 
 </manifest>

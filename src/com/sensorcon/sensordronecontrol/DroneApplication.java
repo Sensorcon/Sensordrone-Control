@@ -3,6 +3,7 @@ package com.sensorcon.sensordronecontrol;
 import com.sensorcon.sensordrone.Drone;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 /**
  * We will make a class that extends Application to put our Drone in,
@@ -10,6 +11,8 @@ import android.app.Application;
  */
 public class DroneApplication extends Application {
 	public Drone myDrone;
+	
+
 	
 	// Set some streaming rates, so we can switch back to a default rate when coming back from 
 	// graphing.
@@ -22,7 +25,7 @@ public class DroneApplication extends Application {
 		
 		myDrone = new Drone();
 		streamingRate = defaultRate;
-		
+				
 	}
 	
 	
