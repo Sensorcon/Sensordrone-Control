@@ -550,13 +550,13 @@ public class SensordroneControl extends Activity {
 					if (pref == SDPreferences.PASCAL) {
 						tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Pascals) + " Pa");
 					} else if (pref == SDPreferences.KILOPASCAL) {
-						tvUpdate(tvSensorValues[2], String.format("%.3f", droneApp.myDrone.pressure_Pascals / 1000) + " kPa");
+						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Pascals / 1000) + " kPa");
 					} else if (pref == SDPreferences.ATMOSPHERE) {
 						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Atmospheres) + " Atm");
 					} else if (pref == SDPreferences.MMHG) {
 						tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Torr) + " mmHg");
 					} else if (pref == SDPreferences.INHG) {
-						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Torr * 0.0393700732914) + "inHg");
+						tvUpdate(tvSensorValues[2], String.format("%.2f", droneApp.myDrone.pressure_Torr * 0.0393700732914) + " inHg");
 					}
 					streamerArray[2].streamHandler.postDelayed(streamerArray[2], droneApp.streamingRate);
 
@@ -588,9 +588,9 @@ public class SensordroneControl extends Activity {
 						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Celcius) + "  \u00B0C");
 					} else if (pref == SDPreferences.KELVIN) {
 						// There is an error in SDAndroidLib-1.1.1
-						// It converts Kelvin by subtracting 273.5 9 from the Celcius value instead of adding).
+						// It converts Kelvin by subtracting 273.15 from the Celcius value (instead of adding).
 						// This will be fixed in the library in the future, but we fix it here for now
-						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Kelvin + 273.5 + 273.5) + "  K");
+						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Kelvin + 273.15 + 273.15) + "  K");
 					}
 					streamerArray[0].streamHandler.postDelayed(streamerArray[0], droneApp.streamingRate);
 

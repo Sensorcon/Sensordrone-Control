@@ -10,7 +10,6 @@ import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.SimpleXYSeries.ArrayFormat;
 import com.androidplot.xy.XYPlot;
-import com.sensorcon.sensordrone.Drone;
 import com.sensorcon.sensordrone.Drone.DroneEventListener;
 import com.sensorcon.sensordrone.Drone.DroneStatusListener;
 
@@ -18,15 +17,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
 public class GraphActivity extends Activity {
 
+	/*
+	 * Preferences for Units
+	 */
+	SharedPreferences unitPreferences;
 
 	protected DroneApplication droneApp;
 	private float valueToWatch;
@@ -66,7 +72,17 @@ public class GraphActivity extends Activity {
 			// If this is the sensor we are graphing
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_TEMPERATURE) {
 				// then set the variable
-				valueToWatch = droneApp.myDrone.temperature_Farenheit;
+				int pref = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+				if (pref == SDPreferences.FARENHEIT) {
+					valueToWatch = droneApp.myDrone.temperature_Farenheit;
+				} else if (pref == SDPreferences.CELCIUS) {
+					valueToWatch = droneApp.myDrone.temperature_Celcius;
+				} else if (pref == SDPreferences.KELVIN) {
+					// There is an error in SDAndroidLib-1.1.1
+					// It converts Kelvin by subtracting 273.15 from the Celcius value (instead of adding).
+					// This will be fixed in the library in the future, but we fix it here for now
+					valueToWatch = (float) (droneApp.myDrone.temperature_Kelvin + (273.15 * 2));
+				}
 				// and add the data to the graph
 				addData(valueToWatch);
 			}
@@ -83,7 +99,20 @@ public class GraphActivity extends Activity {
 		@Override
 		public void pressureMeasured(EventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_PRESSURE) {
-				valueToWatch = droneApp.myDrone.pressure_Pascals;
+				
+				int pref = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
+				if (pref == SDPreferences.PASCAL) {
+					valueToWatch = droneApp.myDrone.pressure_Pascals;
+				} else if (pref == SDPreferences.KILOPASCAL) {
+					valueToWatch = droneApp.myDrone.pressure_Pascals / 1000;
+				} else if (pref == SDPreferences.ATMOSPHERE) {
+					valueToWatch = droneApp.myDrone.pressure_Atmospheres;
+				} else if (pref == SDPreferences.MMHG) {
+					valueToWatch = droneApp.myDrone.pressure_Torr;
+				} else if (pref == SDPreferences.INHG) {
+					valueToWatch = (float) (droneApp.myDrone.pressure_Torr * 0.0393700732914);
+				}
+				
 				addData(valueToWatch);
 			}
 		}
@@ -99,7 +128,14 @@ public class GraphActivity extends Activity {
 		@Override
 		public void irTemperatureMeasured(EventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_IR_TEMPERATURE) {
-				valueToWatch = droneApp.myDrone.irTemperature_Farenheit;
+				int pref = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+				if (pref == SDPreferences.FARENHEIT) {
+					valueToWatch = droneApp.myDrone.irTemperature_Farenheit;
+				} else if (pref == SDPreferences.CELCIUS) {
+					valueToWatch = droneApp.myDrone.irTemperature_Celcius;
+				} else if (pref == SDPreferences.KELVIN) {
+					valueToWatch = droneApp.myDrone.irTemperature_Kelvin;
+				}
 				addData(valueToWatch);
 			}
 		}
@@ -166,7 +202,18 @@ public class GraphActivity extends Activity {
 		public void altitudeMeasured(EventObject arg0) {
 
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_ALTITUDE) {
-				valueToWatch = droneApp.myDrone.altitude_Feet;
+				int pref = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
+				if (pref == SDPreferences.FEET) {
+					valueToWatch = droneApp.myDrone.altitude_Feet;
+				} else if (pref == SDPreferences.MILES) {
+					valueToWatch = (float) (droneApp.myDrone.altitude_Feet * 0.000189394);
+				} else if (pref == SDPreferences.METER) {
+					valueToWatch = droneApp.myDrone.altitude_Meters;
+				} else if (pref == SDPreferences.KILOMETER) {
+					valueToWatch = droneApp.myDrone.altitude_Meters / 1000;
+				}
+				
+				
 				addData(valueToWatch);
 			}
 		}
@@ -318,12 +365,15 @@ public class GraphActivity extends Activity {
 		Intent myIntent = getIntent();
 		String myLabel = myIntent.getStringExtra("SensorName");
 		sensorToWatch = myIntent.getIntExtra("quickInt", 0);
+		
+		// Set up preferences for units
+		unitPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		// Graph data
 		droneHistory = new LinkedList<Number>();
 		droneValues= new SimpleXYSeries(myLabel);
 
-		// Graph foramtting
+		// Graph formatting
 		dronePlot = (XYPlot)findViewById(R.id.dynamicPlot);
 		LineAndPointFormatter lF = new LineAndPointFormatter(Color.rgb(0, 0, 0), Color.rgb(0, 255, 0), null);
 		dronePlot.addSeries(droneValues, lF);
@@ -334,17 +384,52 @@ public class GraphActivity extends Activity {
 		// Start with typical bounds for a particular sensor
 		// These will be the default Range. Can be changed via the Menu
 		if (sensorToWatch == droneApp.myDrone.QS_TYPE_TEMPERATURE) {
-			upperBound = 120;
-			lowerBound = 20;
+			int prefs = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+			if (prefs == SDPreferences.FARENHEIT) {
+				upperBound = 120;
+				lowerBound = 20;
+			} else if (prefs == SDPreferences.CELCIUS) {
+				upperBound = 50;
+				lowerBound = -7;
+			} else if (prefs == SDPreferences.KELVIN) {
+				upperBound = 322;
+				lowerBound = 266;
+			}
+
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_HUMIDITY) {
 			upperBound = 90;
 			lowerBound = 10;
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_PRESSURE) {
-			upperBound = 100500;
-			lowerBound = 98000;
+			int prefs = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
+			if (prefs == SDPreferences.PASCAL) {
+				upperBound = 100500;
+				lowerBound = 98000;
+			} else if ( prefs == SDPreferences.KILOPASCAL) {
+				upperBound = 101;
+				lowerBound = 98;
+			} else if (prefs == SDPreferences.ATMOSPHERE) {
+				upperBound = 1;
+				lowerBound = 0;
+			} else if (prefs == SDPreferences.MMHG) {
+				upperBound = 757;
+				lowerBound = 735;
+			} else if (prefs == SDPreferences.INHG) {
+				upperBound = 30;
+				lowerBound = 28;
+			}
+			
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_IR_TEMPERATURE) {
-			upperBound = 120;
-			lowerBound = 20;
+			int prefs = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+			if (prefs == SDPreferences.FARENHEIT) {
+				upperBound = 120;
+				lowerBound = 20;
+			} else if (prefs == SDPreferences.CELCIUS) {
+				upperBound = 50;
+				lowerBound = -7;
+			} else if (prefs == SDPreferences.KELVIN) {
+				upperBound = 322;
+				lowerBound = 266;
+			}
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_RGBC) {
 			upperBound = 1000;
 			lowerBound = 0;
@@ -358,9 +443,22 @@ public class GraphActivity extends Activity {
 			upperBound = 3;
 			lowerBound = 0;
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_ALTITUDE) {
-			upperBound = 1000;
-			lowerBound = 300;
-		} else if (sensorToWatch == 42) { // Hard coded value for battery votlage
+			int prefs = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
+			if (prefs == SDPreferences.FEET) {
+				upperBound = 1000;
+				lowerBound = 300;
+			} else if (prefs == SDPreferences.MILES) {
+				upperBound = 1;
+				lowerBound = 0;
+			} else if (prefs == SDPreferences.METER) {
+				upperBound = 305;
+				lowerBound = 91;
+			} else if (prefs == SDPreferences.KILOMETER) {
+				upperBound = 1;
+				lowerBound = 0;
+			}
+			
+		} else if (sensorToWatch == 42) { // Hard coded value for battery voltage
 			upperBound = 5;
 			lowerBound = 3;
 		} else {
@@ -470,7 +568,8 @@ public class GraphActivity extends Activity {
 
 		// Set an EditText view to get user input 
 		final EditText upper = new EditText(this);
-		upper.setInputType(InputType.TYPE_CLASS_NUMBER);
+		// Allow negative numbers by adding | InputType.TYPE_NUMBER_FLAG_SIGNED
+		upper.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
 		alert.setView(upper);
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -507,7 +606,8 @@ public class GraphActivity extends Activity {
 
 		// Set an EditText view to get user input 
 		final EditText lower = new EditText(this);
-		lower.setInputType(InputType.TYPE_CLASS_NUMBER);
+		// Allow negative numbers by adding | InputType.TYPE_NUMBER_FLAG_SIGNED
+		lower.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
 		alert.setView(lower);
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
