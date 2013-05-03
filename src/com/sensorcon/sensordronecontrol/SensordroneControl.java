@@ -1009,7 +1009,7 @@ public class SensordroneControl extends Activity {
 			if (!droneApp.myDrone.isConnected) {
 				// This option is used to re-connect to the last connected MAC
 				// from our SharedPreferences
-				String prefLastMAC = sdcPreferences.getString("LASTMAC", "");
+				String prefLastMAC = sdcPreferences.getString(SDPreferences.LAST_MAC, "");
 				if (!prefLastMAC.equals("")) {
 					if (!droneApp.myDrone.btConnect(prefLastMAC)) {
 						myInfo.connectFail();
