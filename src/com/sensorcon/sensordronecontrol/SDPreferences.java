@@ -5,6 +5,8 @@ public class SDPreferences {
 	/*
 	 * Properties
 	 */
+	// Our last Sensordrone
+	static String LAST_MAC = "LAST_MAC";
 	
 	// Ambient Temperature
 	static String TEMPERATURE_UNIT = "TEMPERATURE_UNIT";

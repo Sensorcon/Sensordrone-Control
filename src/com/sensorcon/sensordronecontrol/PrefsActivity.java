@@ -1,32 +1,26 @@
 package com.sensorcon.sensordronecontrol;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class PrefsActivity extends Activity {
 
+	/*
+	 * Set up our Shared Preferences and its editor
+	 */
 	SharedPreferences unitPreferences;
 	Editor prefEditor;
 
@@ -34,7 +28,11 @@ public class PrefsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.prefs);
+		
 
+		/*
+		 * Initialize the preferences and the editor
+		 */
 		unitPreferences  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		prefEditor = unitPreferences.edit();
 
@@ -46,26 +44,36 @@ public class PrefsActivity extends Activity {
 		int currentIRTemperatureUnit = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
 		int currentAltitudeUnit = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
 
+		/*
+		 * Get our main layout
+		 */
 		LinearLayout prefLayout = (LinearLayout)findViewById(R.id.prefLayout); 
+		
 
+		// Formatting
+		prefLayout.setBackgroundColor(Color.BLACK);
+		int buttonTextColor = Color.WHITE;
+		float propertyTextSize = 20;
+		
 
 		/*
 		 *  Ambient Temperature
 		 */
-		TextView tempPref = new TextView(getApplicationContext());
-		tempPref.setText("Ambient Temperature");
-		prefLayout.addView(tempPref);
+		TextView temperatureTV = new TextView(getApplicationContext());
+		temperatureTV.setText("Ambient Temperature");
+		temperatureTV.setTextSize(propertyTextSize);
+		prefLayout.addView(temperatureTV);
 		// Radio Buttons
 		RadioGroup temperatureGroup = new RadioGroup(getApplicationContext());
 		RadioButton tempCelcius = new RadioButton(getApplicationContext());
 		tempCelcius.setText("Celcius");
-		tempCelcius.setTextColor(Color.BLACK);
+		tempCelcius.setTextColor(buttonTextColor);
 		RadioButton tempFareneit = new RadioButton(getApplicationContext());
 		tempFareneit.setText("Farenheit");
-		tempFareneit.setTextColor(Color.BLACK);
+		tempFareneit.setTextColor(buttonTextColor);
 		RadioButton tempKelvin = new RadioButton(getApplicationContext());
 		tempKelvin.setText("Kelvin");
-		tempKelvin.setTextColor(Color.BLACK);
+		tempKelvin.setTextColor(buttonTextColor);
 		temperatureGroup.addView(tempFareneit);
 		temperatureGroup.addView(tempCelcius);
 		temperatureGroup.addView(tempKelvin);
@@ -83,9 +91,10 @@ public class PrefsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
+				// Shared preferences use a  key, value system.
+				// Our keys and values are statically defined in the SDPreference class
 				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,SDPreferences.CELCIUS);
-				prefEditor.commit();
-				Log.d("PREFS", "Celcius");
+				prefEditor.commit(); // Preferences aren't updated until there is a commit/apply.
 			}
 		});
 		tempFareneit.setOnClickListener(new OnClickListener() {
@@ -94,8 +103,6 @@ public class PrefsActivity extends Activity {
 			public void onClick(View v) {
 				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
 				prefEditor.commit();
-
-				Log.d("PREFS", "Farenheit");
 			}
 		});
 		tempKelvin.setOnClickListener(new OnClickListener() {
@@ -107,30 +114,88 @@ public class PrefsActivity extends Activity {
 				Log.d("PREFS", "Kelvin");
 			}
 		});
+		
+		/*
+		 * IR Temperature
+		 */
+		TextView irTV = new TextView(getApplicationContext());
+		irTV.setText("IR Temperature");
+		irTV.setTextSize(propertyTextSize);
+		prefLayout.addView(irTV);
+		// Radio buttons
+		RadioGroup irGroup = new RadioGroup(getApplicationContext());
+		prefLayout.addView(irGroup);
+		RadioButton irFarenheit = new RadioButton(getApplicationContext());
+		irFarenheit.setText("Farenheit");
+		irFarenheit.setTextColor(buttonTextColor);
+		RadioButton irCelcius = new RadioButton(getApplicationContext());
+		irCelcius.setText("Celcius");
+		irCelcius.setTextColor(buttonTextColor);
+		RadioButton irKelvin = new RadioButton(getApplicationContext());
+		irKelvin.setText("Kelvin");
+		irKelvin.setTextColor(buttonTextColor);
+		irGroup.addView(irFarenheit);
+		irGroup.addView(irCelcius);
+		irGroup.addView(irKelvin);
+		// What was selected?
+		if (currentIRTemperatureUnit == SDPreferences.FARENHEIT) {
+			irFarenheit.setChecked(true);
+		} else if (currentIRTemperatureUnit == SDPreferences.CELCIUS) {
+			irCelcius.setChecked(true);
+		} else if (currentIRTemperatureUnit == SDPreferences.KELVIN) {
+			irKelvin.setChecked(true);
+		}
+		// Set listeners
+		irFarenheit.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+				prefEditor.commit();
+			}
+		});
+		irCelcius.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.CELCIUS);
+				prefEditor.commit();
+			}
+		});
+		irKelvin.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.KELVIN);
+				prefEditor.commit();
+			}
+		});
+		
 
 		/*
 		 * Pressure
 		 */
 		TextView pressureTV = new TextView(getApplicationContext());
 		pressureTV.setText("Pressure Units");
+		pressureTV.setTextSize(propertyTextSize);
 		prefLayout.addView(pressureTV);
 		RadioGroup pressureGroup = new RadioGroup(getApplicationContext());
 		prefLayout.addView(pressureGroup);
 		RadioButton presPascal = new RadioButton(getApplicationContext());
-		presPascal.setText("Pacal");
-		presPascal.setTextColor(Color.BLACK);
+		presPascal.setText("Pascal");
+		presPascal.setTextColor(buttonTextColor);
 		RadioButton presKPascal = new RadioButton(getApplicationContext());
-		presKPascal.setText("KiloPascal");
-		presKPascal.setTextColor(Color.BLACK);
+		presKPascal.setText("Kilopascal");
+		presKPascal.setTextColor(buttonTextColor);
 		RadioButton presAtm = new RadioButton(getApplicationContext());
 		presAtm.setText("Atmosphere");
-		presAtm.setTextColor(Color.BLACK);
+		presAtm.setTextColor(buttonTextColor);
 		RadioButton presmmHg = new RadioButton(getApplicationContext());
-		presmmHg.setText("mm Hg");
-		presmmHg.setTextColor(Color.BLACK);
+		presmmHg.setText("mmHg");
+		presmmHg.setTextColor(buttonTextColor);
 		RadioButton presInHg = new RadioButton(getApplicationContext());
-		presInHg.setText("In Hg");
-		presInHg.setTextColor(Color.BLACK);
+		presInHg.setText("inHg");
+		presInHg.setTextColor(buttonTextColor);
 		pressureGroup.addView(presPascal);
 		pressureGroup.addView(presKPascal);
 		pressureGroup.addView(presAtm);
@@ -192,81 +257,30 @@ public class PrefsActivity extends Activity {
 		});
 
 
-		/*
-		 * IR Temperature
-		 */
-		TextView irTV = new TextView(getApplicationContext());
-		irTV.setText("IR Temperature");
-		prefLayout.addView(irTV);
-		RadioGroup irGroup = new RadioGroup(getApplicationContext());
-		prefLayout.addView(irGroup);
-		RadioButton irFarenheit = new RadioButton(getApplicationContext());
-		irFarenheit.setText("Farenheit");
-		irFarenheit.setTextColor(Color.BLACK);
-		RadioButton irCelcius = new RadioButton(getApplicationContext());
-		irCelcius.setText("Celcius");
-		irCelcius.setTextColor(Color.BLACK);
-		RadioButton irKelvin = new RadioButton(getApplicationContext());
-		irKelvin.setText("Kelvin");
-		irKelvin.setTextColor(Color.BLACK);
-		irGroup.addView(irFarenheit);
-		irGroup.addView(irCelcius);
-		irGroup.addView(irKelvin);
-		// What was selected?
-		if (currentIRTemperatureUnit == SDPreferences.FARENHEIT) {
-			irFarenheit.setChecked(true);
-		} else if (currentIRTemperatureUnit == SDPreferences.CELCIUS) {
-			irCelcius.setChecked(true);
-		} else if (currentIRTemperatureUnit == SDPreferences.KELVIN) {
-			irKelvin.setChecked(true);
-		}
 
-		// Set listeners
-		irFarenheit.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-				prefEditor.commit();
-			}
-		});
-		irCelcius.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.CELCIUS);
-				prefEditor.commit();
-			}
-		});
-		irKelvin.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.KELVIN);
-				prefEditor.commit();
-			}
-		});
 
 		/*
 		 * Altitude
 		 */
 		TextView altitudeTV = new TextView(getApplicationContext());
 		altitudeTV.setText("Altitude");
+		altitudeTV.setTextSize(propertyTextSize);
 		prefLayout.addView(altitudeTV);
+		// Radio buttons
 		RadioGroup altGroup = new RadioGroup(getApplicationContext());
 		prefLayout.addView(altGroup);
 		RadioButton altFeet = new RadioButton(getApplicationContext());
 		altFeet.setText("Feet");
-		altFeet.setTextColor(Color.BLACK);
+		altFeet.setTextColor(buttonTextColor);
 		RadioButton altMile = new RadioButton(getApplicationContext());
 		altMile.setText("Mile");
-		altMile.setTextColor(Color.BLACK);
+		altMile.setTextColor(buttonTextColor);
 		RadioButton altMeter = new RadioButton(getApplicationContext());
 		altMeter.setText("Meter");
-		altMeter.setTextColor(Color.BLACK);
+		altMeter.setTextColor(buttonTextColor);
 		RadioButton altKmeter = new RadioButton(getApplicationContext());
 		altKmeter.setText("Kilometer");
-		altKmeter.setTextColor(Color.BLACK);
+		altKmeter.setTextColor(buttonTextColor);
 		altGroup.addView(altFeet);
 		altGroup.addView(altMile);
 		altGroup.addView(altMeter);
@@ -281,7 +295,7 @@ public class PrefsActivity extends Activity {
 		} else if (currentAltitudeUnit == SDPreferences.KILOMETER) {
 			altKmeter.setChecked(true);
 		}
-		// Blurble
+		// Listeners
 		altFeet.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -315,18 +329,6 @@ public class PrefsActivity extends Activity {
 			}
 		});
 
-
-
-
-
-
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.prefs, menu);
-		return true;
 	}
 
 }

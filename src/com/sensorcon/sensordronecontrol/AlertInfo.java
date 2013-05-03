@@ -63,7 +63,8 @@ public class AlertInfo {
 								"Re-Connect:\n" +
 								"Once you have connected with a Sensordrone, it remembers the last device " +
 								"it was connected to. After disconnecting, clicking Re-Connect will attempt to re-connect with " +
-								"it without having to scan for the device again.\n\n" +
+								"it without having to scan for the device again. As of version 1.2, this is stored a preferences file" +
+								" and you can use re-connect even if you've recently closed the app.\n\n" +
 								//
 								"Disconnect:\n" +
 								"This will disconnect from the Sensordrone you are currently conencted to.\n\n" +

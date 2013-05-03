@@ -51,9 +51,9 @@ import android.widget.TableRow.LayoutParams;
 public class SensordroneControl extends Activity {
 
 	/*
-	 * Preferences for Units
+	 * Preferences
 	 */
-	SharedPreferences unitPreferences;
+	SharedPreferences sdcPreferences;
 	
 	/*
 	 * We put our Drone object in a class that extends Application so it
@@ -414,7 +414,7 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void altitudeMeasured(EventObject arg0) {
-					int pref = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
+					int pref = sdcPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
 					if (pref == SDPreferences.FEET) {
 						tvUpdate(tvSensorValues[8], String.format("%.0f", droneApp.myDrone.altitude_Feet) + " Ft");
 					} else if (pref == SDPreferences.MILES) {
@@ -444,8 +444,8 @@ public class SensordroneControl extends Activity {
 					// to always try and connect to the last Drone (not just the last one per
 					// app instance)
 					
-					Editor prefEditor = unitPreferences.edit();
-					prefEditor.putString("LASTMAC", droneApp.myDrone.lastMAC);
+					Editor prefEditor = sdcPreferences.edit();
+					prefEditor.putString(SDPreferences.LAST_MAC, droneApp.myDrone.lastMAC);
 					prefEditor.commit();
 					
 					// Things to do when we connect to a Sensordrone
@@ -525,7 +525,7 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void irTemperatureMeasured(EventObject arg0) {
-					int pref = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+					int pref = sdcPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
 					if (pref == SDPreferences.FARENHEIT) {
 						tvUpdate(tvSensorValues[3], String.format("%.1f", droneApp.myDrone.irTemperature_Farenheit) + " \u00B0F");
 					} else if (pref == SDPreferences.CELCIUS) {
@@ -546,7 +546,7 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void pressureMeasured(EventObject arg0) {
-					int pref = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
+					int pref = sdcPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
 					if (pref == SDPreferences.PASCAL) {
 						tvUpdate(tvSensorValues[2], String.format("%.0f", droneApp.myDrone.pressure_Pascals) + " Pa");
 					} else if (pref == SDPreferences.KILOPASCAL) {
@@ -581,7 +581,7 @@ public class SensordroneControl extends Activity {
 
 				@Override
 				public void temperatureMeasured(EventObject arg0) {
-					int pref = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+					int pref = sdcPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
 					if (pref == SDPreferences.FARENHEIT) {
 						tvUpdate(tvSensorValues[0], String.format("%.1f", droneApp.myDrone.temperature_Farenheit) + "  \u00B0F");
 					} else if (pref == SDPreferences.CELCIUS) {
@@ -835,7 +835,7 @@ public class SensordroneControl extends Activity {
 		myInfo = new AlertInfo(this);
 
 		// Initialize SharedPreferences
-		unitPreferences  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		sdcPreferences  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		
 		/*
@@ -1009,7 +1009,7 @@ public class SensordroneControl extends Activity {
 			if (!droneApp.myDrone.isConnected) {
 				// This option is used to re-connect to the last connected MAC
 				// from our SharedPreferences
-				String prefLastMAC = unitPreferences.getString("LASTMAC", "");
+				String prefLastMAC = sdcPreferences.getString("LASTMAC", "");
 				if (!prefLastMAC.equals("")) {
 					if (!droneApp.myDrone.btConnect(prefLastMAC)) {
 						myInfo.connectFail();
