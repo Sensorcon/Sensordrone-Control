@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -65,19 +64,19 @@ public class SensordroneControl extends Activity {
 	// Our Listeners
 	private DroneEventListener deListener;
 	private DroneStatusListener dsListener;
-	private String MAC = "";
 
 	// An int[] that will hold the QS_TYPEs for our sensors of interest
 	private int[] qsSensors;
 
 	// Text to display
-	private String[] sensorNames = { "Temperature (Ambient)", "Humidity",
-			"Pressure", "Object Temperature (IR)", "Illuminance (calculated)",
-			"Precision Gas (CO equivalent)", "Proximity Capacitance",
-			"External Voltage (0-3V)", "Altitude (calculated)" };
+	private static final String[] SENSOR_NAMES = { "Temperature (Ambient)",
+			"Humidity", "Pressure", "Object Temperature (IR)",
+			"Illuminance (calculated)", "Precision Gas (CO equivalent)",
+			"Proximity Capacitance", "External Voltage (0-3V)",
+			"Altitude (calculated)" };
 
 	// Figure out how many sensors we have based on the length of our labels
-	private int numberOfSensors = sensorNames.length;
+	private int numberOfSensors = SENSOR_NAMES.length;
 
 	// GUI Stuff
 	private TableLayout onOffLayout;
@@ -162,7 +161,7 @@ public class SensordroneControl extends Activity {
 			streamerArray[i] = new SDStreamer(droneApp.myDrone, qsSensors[i]);
 
 			sensorRow[i].setLayoutParams(trLayout); // Set the layout
-			tvLabel[i].setText(sensorNames[i]); // Set the text
+			tvLabel[i].setText(SENSOR_NAMES[i]); // Set the text
 			tvLabel[i].setLayoutParams(tvLayout); // Set the layout
 
 			tvSensorValues[i].setBackgroundResource(R.drawable.valuegradient);
@@ -181,7 +180,7 @@ public class SensordroneControl extends Activity {
 					if (droneApp.myDrone.quickStatus(qsSensors[counter])) {
 						Intent myIntent = new Intent(getApplicationContext(),
 								GraphActivity.class);
-						myIntent.putExtra("SensorName", sensorNames[counter]);
+						myIntent.putExtra("SensorName", SENSOR_NAMES[counter]);
 						myIntent.putExtra("quickInt", qsSensors[counter]);
 						startActivity(myIntent);
 					} else {
@@ -845,12 +844,6 @@ public class SensordroneControl extends Activity {
 		onOffLayout.addView(bvRow);
 		onOffLayout.addView(tvConnectionStatus);
 		onOffLayout.addView(tvConnectInfo);
-
-		// Set up our background
-		Drawable bgGradient = getResources().getDrawable(
-				R.drawable.tablegradient);
-		onOffLayout.setBackgroundDrawable(bgGradient);
-		onOffLayout.setPadding(10, 10, 10, 10);
 
 		droneApp.myDrone.registerDroneEventListener(deListener);
 		droneApp.myDrone.registerDroneStatusListener(dsListener);
