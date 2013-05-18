@@ -1,20 +1,17 @@
 package com.sensorcon.sensordronecontrol;
 
-
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
-import android.util.Log;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-
 
 public class PrefsActivity extends Activity {
 
@@ -28,36 +25,38 @@ public class PrefsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.prefs);
-		
 
 		/*
 		 * Initialize the preferences and the editor
 		 */
-		unitPreferences  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		unitPreferences = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
 		prefEditor = unitPreferences.edit();
 
 		/*
 		 * Get current values
 		 */
-		int currentTemperatureUnit = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-		int currentPressureUnit = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
-		int currentIRTemperatureUnit = unitPreferences.getInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-		int currentAltitudeUnit = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
+		int currentTemperatureUnit = unitPreferences.getInt(
+				SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+		int currentPressureUnit = unitPreferences.getInt(
+				SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
+		int currentIRTemperatureUnit = unitPreferences.getInt(
+				SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+		int currentAltitudeUnit = unitPreferences.getInt(
+				SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
 
 		/*
 		 * Get our main layout
 		 */
-		LinearLayout prefLayout = (LinearLayout)findViewById(R.id.prefLayout); 
-		
+		LinearLayout prefLayout = (LinearLayout) findViewById(R.id.prefLayout);
 
 		// Formatting
 		prefLayout.setBackgroundColor(Color.BLACK);
 		int buttonTextColor = Color.WHITE;
 		float propertyTextSize = 20;
-		
 
 		/*
-		 *  Ambient Temperature
+		 * Ambient Temperature
 		 */
 		TextView temperatureTV = new TextView(getApplicationContext());
 		temperatureTV.setText("Ambient Temperature");
@@ -91,30 +90,34 @@ public class PrefsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				// Shared preferences use a  key, value system.
-				// Our keys and values are statically defined in the SDPreference class
-				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,SDPreferences.CELCIUS);
-				prefEditor.commit(); // Preferences aren't updated until there is a commit/apply.
+				// Shared preferences use a key, value system.
+				// Our keys and values are statically defined in the
+				// SDPreference class
+				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
+						SDPreferences.CELCIUS);
+				prefEditor.apply(); // Preferences aren't updated until there is
+									// a commit/apply.
 			}
 		});
 		tempFareneit.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
+						SDPreferences.FARENHEIT);
+				prefEditor.apply();
 			}
 		});
 		tempKelvin.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT, SDPreferences.KELVIN);
-				prefEditor.commit();
-				Log.d("PREFS", "Kelvin");
+				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
+						SDPreferences.KELVIN);
+				prefEditor.apply();
 			}
 		});
-		
+
 		/*
 		 * IR Temperature
 		 */
@@ -150,27 +153,29 @@ public class PrefsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT,
+						SDPreferences.FARENHEIT);
+				prefEditor.apply();
 			}
 		});
 		irCelcius.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.CELCIUS);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT,
+						SDPreferences.CELCIUS);
+				prefEditor.apply();
 			}
 		});
 		irKelvin.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.KELVIN);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT,
+						SDPreferences.KELVIN);
+				prefEditor.apply();
 			}
 		});
-		
 
 		/*
 		 * Pressure
@@ -219,45 +224,47 @@ public class PrefsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.PRESSURE_UNIT,
+						SDPreferences.PASCAL);
+				prefEditor.apply();
 			}
 		});
 		presKPascal.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.KILOPASCAL);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.PRESSURE_UNIT,
+						SDPreferences.KILOPASCAL);
+				prefEditor.apply();
 			}
 		});
 		presAtm.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.ATMOSPHERE);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.PRESSURE_UNIT,
+						SDPreferences.ATMOSPHERE);
+				prefEditor.apply();
 			}
 		});
 		presmmHg.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.MMHG);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.PRESSURE_UNIT,
+						SDPreferences.MMHG);
+				prefEditor.apply();
 			}
 		});
 		presInHg.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.INHG);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.PRESSURE_UNIT,
+						SDPreferences.INHG);
+				prefEditor.apply();
 			}
 		});
-
-
-
 
 		/*
 		 * Altitude
@@ -300,32 +307,36 @@ public class PrefsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT,
+						SDPreferences.FEET);
+				prefEditor.apply();
 			}
 		});
 		altMile.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.MILES);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT,
+						SDPreferences.MILES);
+				prefEditor.apply();
 			}
 		});
 		altMeter.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.METER);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT,
+						SDPreferences.METER);
+				prefEditor.apply();
 			}
 		});
 		altKmeter.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT, SDPreferences.KILOMETER);
-				prefEditor.commit();
+				prefEditor.putInt(SDPreferences.ALTITUDE_UNIT,
+						SDPreferences.KILOMETER);
+				prefEditor.apply();
 			}
 		});
 
