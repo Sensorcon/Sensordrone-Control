@@ -24,8 +24,8 @@ public class SDPreferences {
 	 */
 	
 	// Temperature
-	static int FARENHEIT = 0;
-	static int CELCIUS = 1;
+	static int FAHRENHEIT = 0;
+	static int CELSIUS = 1;
 	static int KELVIN = 2;
 	
 	// Pressure

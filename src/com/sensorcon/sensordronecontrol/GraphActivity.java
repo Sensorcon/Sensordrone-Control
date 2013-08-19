@@ -1,7 +1,6 @@
 package com.sensorcon.sensordronecontrol;
 
 import java.util.Arrays;
-import java.util.EventObject;
 import java.util.LinkedList;
 
 import android.app.Activity;
@@ -22,8 +21,9 @@ import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.SimpleXYSeries.ArrayFormat;
 import com.androidplot.xy.XYPlot;
-import com.sensorcon.sensordrone.Drone.DroneEventListener;
-import com.sensorcon.sensordrone.Drone.DroneStatusListener;
+import com.sensorcon.sensordrone.DroneEventHandler;
+import com.sensorcon.sensordrone.DroneEventListener;
+import com.sensorcon.sensordrone.DroneEventObject;
 
 public class GraphActivity extends Activity {
 
@@ -42,38 +42,38 @@ public class GraphActivity extends Activity {
 	private int[] savedRange;
 
 	/*
-	 * We user our DroneEentListener to load data into the graph. Check
+	 * We user our DroneEventListener to load data into the graph. Check
 	 * temperatureMeasured() for the general idea of how it works.
 	 */
 	private DroneEventListener geListener = new DroneEventListener() {
 
 		@Override
-		public void usbUartRead(EventObject arg0) {
+		public void usbUartRead(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void unknown(EventObject arg0) {
+		public void unknown(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void uartRead(EventObject arg0) {
+		public void uartRead(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void temperatureMeasured(EventObject arg0) {
+		public void temperatureMeasured(DroneEventObject arg0) {
 			// If this is the sensor we are graphing
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_TEMPERATURE) {
 				// then set the variable
 				int pref = unitPreferences
 						.getInt(SDPreferences.TEMPERATURE_UNIT,
-								SDPreferences.FARENHEIT);
-				if (pref == SDPreferences.FARENHEIT) {
-					valueToWatch = droneApp.myDrone.temperature_Farenheit;
-				} else if (pref == SDPreferences.CELCIUS) {
-					valueToWatch = droneApp.myDrone.temperature_Celcius;
+								SDPreferences.FAHRENHEIT);
+				if (pref == SDPreferences.FAHRENHEIT) {
+					valueToWatch = droneApp.myDrone.temperature_Fahrenheit;
+				} else if (pref == SDPreferences.CELSIUS) {
+					valueToWatch = droneApp.myDrone.temperature_Celsius;
 				} else if (pref == SDPreferences.KELVIN) {
 					// There is an error in SDAndroidLib-1.1.1
 					// It converts Kelvin by subtracting 273.15 from the Celcius
@@ -88,7 +88,7 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void rgbcMeasured(EventObject arg0) {
+		public void rgbcMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_RGBC) {
 				valueToWatch = droneApp.myDrone.rgbcLux;
 				addData(valueToWatch);
@@ -96,7 +96,7 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void pressureMeasured(EventObject arg0) {
+		public void pressureMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_PRESSURE) {
 
 				int pref = unitPreferences.getInt(SDPreferences.PRESSURE_UNIT,
@@ -118,7 +118,7 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void precisionGasMeasured(EventObject arg0) {
+		public void precisionGasMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_PRECISION_GAS) {
 				valueToWatch = droneApp.myDrone.precisionGas_ppmCarbonMonoxide;
 				addData(valueToWatch);
@@ -126,15 +126,15 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void irTemperatureMeasured(EventObject arg0) {
+		public void irTemperatureMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_IR_TEMPERATURE) {
 				int pref = unitPreferences.getInt(
 						SDPreferences.IR_TEMPERATURE_UNIT,
-						SDPreferences.FARENHEIT);
-				if (pref == SDPreferences.FARENHEIT) {
-					valueToWatch = droneApp.myDrone.irTemperature_Farenheit;
-				} else if (pref == SDPreferences.CELCIUS) {
-					valueToWatch = droneApp.myDrone.irTemperature_Celcius;
+						SDPreferences.FAHRENHEIT);
+				if (pref == SDPreferences.FAHRENHEIT) {
+					valueToWatch = droneApp.myDrone.irTemperature_Fahrenheit;
+				} else if (pref == SDPreferences.CELSIUS) {
+					valueToWatch = droneApp.myDrone.irTemperature_Celsius;
 				} else if (pref == SDPreferences.KELVIN) {
 					valueToWatch = droneApp.myDrone.irTemperature_Kelvin;
 				}
@@ -143,12 +143,12 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void i2cRead(EventObject arg0) {
+		public void i2cRead(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void humidityMeasured(EventObject arg0) {
+		public void humidityMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_HUMIDITY) {
 				valueToWatch = droneApp.myDrone.humidity_Percent;
 				addData(valueToWatch);
@@ -156,37 +156,37 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void reducingGasMeasured(EventObject arg0) {
+		public void reducingGasMeasured(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void oxidizingGasMeasured(EventObject arg0) {
+		public void oxidizingGasMeasured(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void disconnectEvent(EventObject arg0) {
+		public void disconnectEvent(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void customEvent(EventObject arg0) {
+		public void customEvent(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void connectionLostEvent(EventObject arg0) {
+		public void connectionLostEvent(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void connectEvent(EventObject arg0) {
+		public void connectEvent(DroneEventObject arg0) {
 
 		}
 
 		@Override
-		public void capacitanceMeasured(EventObject arg0) {
+		public void capacitanceMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_CAPACITANCE) {
 				valueToWatch = droneApp.myDrone.capacitance_femtoFarad;
 				addData(valueToWatch);
@@ -194,7 +194,7 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void altitudeMeasured(EventObject arg0) {
+		public void altitudeMeasured(DroneEventObject arg0) {
 
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_ALTITUDE) {
 				int pref = unitPreferences.getInt(SDPreferences.ALTITUDE_UNIT,
@@ -214,7 +214,7 @@ public class GraphActivity extends Activity {
 		}
 
 		@Override
-		public void adcMeasured(EventObject arg0) {
+		public void adcMeasured(DroneEventObject arg0) {
 			if (sensorToWatch == droneApp.myDrone.QS_TYPE_ADC) {
 				valueToWatch = droneApp.myDrone.externalADC_Volts;
 				addData(valueToWatch);
@@ -222,94 +222,23 @@ public class GraphActivity extends Activity {
 		}
 	};
 
-	// We'll need to use our DroneStatusListener for graphing battery voltage
-	private DroneStatusListener gsListener = new DroneStatusListener() {
 
-		@Override
-		public void unknownStatus(EventObject arg0) {
 
-		}
-
-		@Override
-		public void temperatureStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void rgbcStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void reducingGasStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void pressureStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void precisionGasStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void oxidizingGasStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void lowBatteryStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void irStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void humidityStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void customStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void chargingStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void capacitanceStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void batteryVoltageStatus(EventObject arg0) {
-			// We hard-coded in 42 since battery voltage is not in the API's
-			// quickSystem
-			if (sensorToWatch == 42) {
-				valueToWatch = droneApp.myDrone.batteryVoltage_Volts;
-				addData(valueToWatch);
-			}
-		}
-
-		@Override
-		public void altitudeStatus(EventObject arg0) {
-
-		}
-
-		@Override
-		public void adcStatus(EventObject arg0) {
-
-		}
-	};
+    // Before, we had a lot of unimplemented methods we had to override;
+    // This has only one, and we parse for what we want
+    private DroneEventHandler droneHandler = new DroneEventHandler() {
+        @Override
+        public void parseEvent(DroneEventObject droneEventObject) {
+            if (droneEventObject.matches(DroneEventObject.droneEventType.BATTERY_VOLTAGE_MEASURED)) {
+                // We hard-coded in 42 since battery voltage is not in the API's
+                // quickSystem
+                if (sensorToWatch == 42) {
+                    valueToWatch = droneApp.myDrone.batteryVoltage_Volts;
+                    addData(valueToWatch);
+                }
+            }
+        }
+    };
 
 	private static final int HISTORY_SIZE = 30; // Display last 30 measurements
 	private XYPlot dronePlot = null;
@@ -335,8 +264,8 @@ public class GraphActivity extends Activity {
 		droneApp = (DroneApplication) getApplication();
 
 		// Register the listeners
-		droneApp.myDrone.registerDroneEventListener(geListener);
-		droneApp.myDrone.registerDroneStatusListener(gsListener);
+        droneApp.myDrone.registerDroneListener(geListener);
+        droneApp.myDrone.registerDroneListener(droneHandler);
 	}
 
 	@Override
@@ -345,8 +274,8 @@ public class GraphActivity extends Activity {
 
 		// The listeners are registered on every create, so remove them on every
 		// destroy
-		droneApp.myDrone.unregisterDroneEventListener(geListener);
-		droneApp.myDrone.unregisterDroneStatusListener(gsListener);
+        droneApp.myDrone.unregisterDroneListener(geListener);
+        droneApp.myDrone.unregisterDroneListener(droneHandler);
 	}
 
 	@Override
@@ -379,9 +308,10 @@ public class GraphActivity extends Activity {
 
 		// Graph formatting
 		dronePlot = (XYPlot) findViewById(R.id.dynamicPlot);
-		LineAndPointFormatter lF = new LineAndPointFormatter(
-				Color.rgb(0, 0, 0), Color.rgb(0, 255, 0), null);
-		dronePlot.addSeries(droneValues, lF);
+        //TODO this constructor ahs added an option. Make sure it still works.
+        // Line, Vertex, Fill, PointLabelFormater
+		LineAndPointFormatter lF = new LineAndPointFormatter(Color.rgb(0, 0, 0), Color.rgb(0, 255, 0), null,null);
+        dronePlot.addSeries(droneValues, lF);
 		dronePlot.setDomainStepValue(1);
 		dronePlot.setTicksPerDomainLabel(10);
 
@@ -389,11 +319,11 @@ public class GraphActivity extends Activity {
 		// These will be the default Range. Can be changed via the Menu
 		if (sensorToWatch == droneApp.myDrone.QS_TYPE_TEMPERATURE) {
 			int prefs = unitPreferences.getInt(SDPreferences.TEMPERATURE_UNIT,
-					SDPreferences.FARENHEIT);
-			if (prefs == SDPreferences.FARENHEIT) {
+					SDPreferences.FAHRENHEIT);
+			if (prefs == SDPreferences.FAHRENHEIT) {
 				upperBound = 120;
 				lowerBound = 20;
-			} else if (prefs == SDPreferences.CELCIUS) {
+			} else if (prefs == SDPreferences.CELSIUS) {
 				upperBound = 50;
 				lowerBound = -7;
 			} else if (prefs == SDPreferences.KELVIN) {
@@ -426,11 +356,11 @@ public class GraphActivity extends Activity {
 
 		} else if (sensorToWatch == droneApp.myDrone.QS_TYPE_IR_TEMPERATURE) {
 			int prefs = unitPreferences.getInt(
-					SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
-			if (prefs == SDPreferences.FARENHEIT) {
+					SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FAHRENHEIT);
+			if (prefs == SDPreferences.FAHRENHEIT) {
 				upperBound = 120;
 				lowerBound = 20;
-			} else if (prefs == SDPreferences.CELCIUS) {
+			} else if (prefs == SDPreferences.CELSIUS) {
 				upperBound = 50;
 				lowerBound = -7;
 			} else if (prefs == SDPreferences.KELVIN) {
@@ -515,7 +445,7 @@ public class GraphActivity extends Activity {
 
 	/*
 	 * Quickly load in some data. The graph grows/stretched until the max
-	 * HISTRY_SIZE is reached, so we load in some points to keep it from looking
+	 * HISTORY_SIZE is reached, so we load in some points to keep it from looking
 	 * strange at first.
 	 */
 	public void initializeData(float data) {

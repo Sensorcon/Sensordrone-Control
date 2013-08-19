@@ -1,6 +1,5 @@
 package com.sensorcon.sensordronecontrol;
 
-import java.util.EventObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,12 +25,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.sensorcon.sdhelper.ConnectionBlinker;
-import com.sensorcon.sdhelper.SDBatteryStreamer;
-import com.sensorcon.sdhelper.SDHelper;
-import com.sensorcon.sdhelper.SDStreamer;
-import com.sensorcon.sensordrone.Drone.DroneEventListener;
-import com.sensorcon.sensordrone.Drone.DroneStatusListener;
+import com.sensorcon.sensordrone.DroneEventListener;
+import com.sensorcon.sensordrone.DroneEventObject;
+import com.sensorcon.sensordrone.DroneStatusListener;
+import com.sensorcon.sensordrone.android.tools.DroneConnectionHelper;
+import com.sensorcon.sensordrone.android.tools.DroneQSStreamer;
+import com.sensorcon.sensordrone.android.tools.DroneStreamer;
+
 
 // Don't let eclipse import android.widget.TableLayout.LayoutParams for your TableRows!
 
@@ -59,7 +59,7 @@ public class SensordroneControl extends Activity {
 	private DroneApplication droneApp;
 
 	// A ConnectionBLinker from the SDHelper Library
-	private ConnectionBlinker myBlinker;
+	private DroneStreamer myBlinker;
 
 	// Our Listeners
 	private DroneEventListener deListener;
@@ -98,12 +98,15 @@ public class SensordroneControl extends Activity {
 
 	// Another object from the SDHelper library. It helps us set up our
 	// pseudo streaming
-	private SDStreamer[] streamerArray = new SDStreamer[numberOfSensors];
+	private DroneQSStreamer[] streamerArray = new DroneQSStreamer[numberOfSensors];
 
 	// We only want to notify of a low battery once,
 	// but the event might be triggered multiple times.
 	// We use this to try and show it only once
 	private boolean lowbatNotify;
+
+    // Toggle our LED
+    private boolean ledToggle = true;
 
 	/*
 	 * Our TableRow layout
@@ -144,7 +147,17 @@ public class SensordroneControl extends Activity {
 				droneApp.myDrone.QS_TYPE_ADC, droneApp.myDrone.QS_TYPE_ALTITUDE };
 
 		// This will Blink our Drone, once a second, Blue
-		myBlinker = new ConnectionBlinker(droneApp.myDrone, 1000, 0, 0, 255);
+        myBlinker = new DroneStreamer(droneApp.myDrone, 1000) {
+            @Override
+            public void repeatableTask() {
+                if (ledToggle) {
+                droneApp.myDrone.setLEDs(0, 0, 126);
+                } else {
+                    droneApp.myDrone.setLEDs(0,0,0);
+                }
+                ledToggle = !ledToggle;
+            }
+        };
 
 		// Set up the TableRows
 		for (int i = 0; i < numberOfSensors; i++) {
@@ -158,7 +171,7 @@ public class SensordroneControl extends Activity {
 			toggleButtons[i] = new ToggleButton(this);
 			tvSensorValues[i] = new TextView(this);
 			tvLabel[i] = new TextView(this);
-			streamerArray[i] = new SDStreamer(droneApp.myDrone, qsSensors[i]);
+			streamerArray[i] = new DroneQSStreamer(droneApp.myDrone, qsSensors[i]);
 
 			sensorRow[i].setLayoutParams(trLayout); // Set the layout
 			tvLabel[i].setText(SENSOR_NAMES[i]); // Set the text
@@ -299,7 +312,7 @@ public class SensordroneControl extends Activity {
 		logoLayout.setBackgroundResource(R.drawable.logogradient);
 		logoLayout.setPadding(10, 10, 10, 10);
 
-		// Measuring battery voltage is not part of the API's quickSyetem,
+		// Measuring battery voltage is not part of the API's quickSystem,
 		// so we will have
 		// to set up a table row manually here
 		bvRow = new TableRow(this);
@@ -317,9 +330,13 @@ public class SensordroneControl extends Activity {
 		bvValue.setLayoutParams(tvLayout);
 		bvValue.setText("--");
 
-		// Use our Battery Streamer from the SDHelper library
-		final SDBatteryStreamer bvStreamer = new SDBatteryStreamer(
-				droneApp.myDrone);
+		// Measure the battery at the default rate (once a second)
+		final DroneStreamer bvStreamer = new DroneStreamer(droneApp.myDrone, droneApp.defaultRate) {
+            @Override
+            public void repeatableTask() {
+                droneApp.myDrone.measureBatteryVoltage();
+            }
+        };
 
 		// Set up our graphing
 		bvValue.setOnClickListener(new OnClickListener() {
@@ -352,13 +369,13 @@ public class SensordroneControl extends Activity {
 				} else {
 					if (bvToggle.isChecked()) {
 						// Enable our steamer
-						bvStreamer.enable();
+						bvStreamer.start();
 						// Measure the voltage once to trigger streaming
 						droneApp.myDrone.measureBatteryVoltage();
 
 					} else {
 						// Stop taking measurements
-						bvStreamer.disable();
+						bvStreamer.stop();
 
 					}
 				}
@@ -379,7 +396,7 @@ public class SensordroneControl extends Activity {
 		deListener = new DroneEventListener() {
 
 			@Override
-			public void adcMeasured(EventObject arg0) {
+			public void adcMeasured(DroneEventObject arg0) {
 				// This is triggered the the external ADC pin is measured
 
 				// Update our display with the measured value
@@ -396,7 +413,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void altitudeMeasured(EventObject arg0) {
+			public void altitudeMeasured(DroneEventObject arg0) {
 				int pref = sdcPreferences.getInt(SDPreferences.ALTITUDE_UNIT,
 						SDPreferences.FEET);
 				if (pref == SDPreferences.FEET) {
@@ -430,7 +447,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void capacitanceMeasured(EventObject arg0) {
+			public void capacitanceMeasured(DroneEventObject arg0) {
 				tvUpdate(
 						tvSensorValues[6],
 						String.format("%.0f",
@@ -442,7 +459,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void connectEvent(EventObject arg0) {
+			public void connectEvent(DroneEventObject arg0) {
 
 				// Since we are adding SharedPreferences to store unit
 				// preferences,
@@ -461,11 +478,9 @@ public class SensordroneControl extends Activity {
 				quickMessage("Connected!");
 				tvUpdate(tvConnectionStatus, "Connected to: "
 						+ droneApp.myDrone.lastMAC);
-				// Flash teh LEDs green
-				myHelper.flashLEDs(droneApp.myDrone, 3, 100, 0, 255, 0);
+
 				// Turn on our blinker
-				myBlinker.enable();
-				myBlinker.run();
+				myBlinker.start();
 				// People don't need to know how to connect if they are
 				// already connected
 				tvConnectInfo.setVisibility(TextView.INVISIBLE);
@@ -474,12 +489,12 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void connectionLostEvent(EventObject arg0) {
+			public void connectionLostEvent(DroneEventObject arg0) {
 
 				// Things to do if we think the connection has been lost.
 
 				// Turn off the blinker
-				myBlinker.disable();
+				myBlinker.stop();
 
 				// notify the user
 				tvUpdate(tvConnectionStatus, "Connection Lost!");
@@ -501,29 +516,29 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void customEvent(EventObject arg0) {
+			public void customEvent(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void disconnectEvent(EventObject arg0) {
+			public void disconnectEvent(DroneEventObject arg0) {
 				// notify the user
 				quickMessage("Disconnected!");
 				tvConnectionStatus.setText("Disconnected");
 			}
 
 			@Override
-			public void oxidizingGasMeasured(EventObject arg0) {
+			public void oxidizingGasMeasured(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void reducingGasMeasured(EventObject arg0) {
+			public void reducingGasMeasured(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void humidityMeasured(EventObject arg0) {
+			public void humidityMeasured(DroneEventObject arg0) {
 				tvUpdate(
 						tvSensorValues[1],
 						String.format("%.1f", droneApp.myDrone.humidity_Percent)
@@ -534,26 +549,26 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void i2cRead(EventObject arg0) {
+			public void i2cRead(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void irTemperatureMeasured(EventObject arg0) {
+			public void irTemperatureMeasured(DroneEventObject arg0) {
 				int pref = sdcPreferences.getInt(
 						SDPreferences.IR_TEMPERATURE_UNIT,
-						SDPreferences.FARENHEIT);
-				if (pref == SDPreferences.FARENHEIT) {
+						SDPreferences.FAHRENHEIT);
+				if (pref == SDPreferences.FAHRENHEIT) {
 					tvUpdate(
 							tvSensorValues[3],
 							String.format("%.1f",
-									droneApp.myDrone.irTemperature_Farenheit)
+									droneApp.myDrone.irTemperature_Fahrenheit)
 									+ " \u00B0F");
-				} else if (pref == SDPreferences.CELCIUS) {
+				} else if (pref == SDPreferences.CELSIUS) {
 					tvUpdate(
 							tvSensorValues[3],
 							String.format("%.1f",
-									droneApp.myDrone.irTemperature_Celcius)
+									droneApp.myDrone.irTemperature_Celsius)
 									+ " \u00B0C");
 				} else if (pref == SDPreferences.KELVIN) {
 					tvUpdate(
@@ -568,7 +583,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void precisionGasMeasured(EventObject arg0) {
+			public void precisionGasMeasured(DroneEventObject arg0) {
 				tvUpdate(
 						tvSensorValues[5],
 						String.format("%.1f",
@@ -580,7 +595,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void pressureMeasured(EventObject arg0) {
+			public void pressureMeasured(DroneEventObject arg0) {
 				int pref = sdcPreferences.getInt(SDPreferences.PRESSURE_UNIT,
 						SDPreferences.PASCAL);
 				if (pref == SDPreferences.PASCAL) {
@@ -619,7 +634,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void rgbcMeasured(EventObject arg0) {
+			public void rgbcMeasured(DroneEventObject arg0) {
 				// The Lux value is calibrated for a (mostly) broadband
 				// light source.
 				// Pointing it at a narrow band light source (like and LED)
@@ -640,33 +655,28 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void temperatureMeasured(EventObject arg0) {
+			public void temperatureMeasured(DroneEventObject arg0) {
 				int pref = sdcPreferences
 						.getInt(SDPreferences.TEMPERATURE_UNIT,
-								SDPreferences.FARENHEIT);
-				if (pref == SDPreferences.FARENHEIT) {
+								SDPreferences.FAHRENHEIT);
+				if (pref == SDPreferences.FAHRENHEIT) {
 					tvUpdate(
 							tvSensorValues[0],
 							String.format("%.1f",
-									droneApp.myDrone.temperature_Farenheit)
+									droneApp.myDrone.temperature_Fahrenheit)
 									+ "  \u00B0F");
-				} else if (pref == SDPreferences.CELCIUS) {
+				} else if (pref == SDPreferences.CELSIUS) {
 					tvUpdate(
 							tvSensorValues[0],
 							String.format("%.1f",
-									droneApp.myDrone.temperature_Celcius)
+									droneApp.myDrone.temperature_Celsius)
 									+ "  \u00B0C");
 				} else if (pref == SDPreferences.KELVIN) {
-					// There is an error in SDAndroidLib-1.1.1
-					// It converts Kelvin by subtracting 273.15 from the
-					// Celcius value (instead of adding).
-					// This will be fixed in the library in the future, but
-					// we fix it here for now
 					tvUpdate(
 							tvSensorValues[0],
 							String.format(
 									"%.1f",
-									droneApp.myDrone.temperature_Kelvin + 273.15 + 273.15)
+									droneApp.myDrone.temperature_Kelvin)
 									+ "  K");
 				}
 				streamerArray[0].streamHandler.postDelayed(streamerArray[0],
@@ -675,17 +685,17 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void uartRead(EventObject arg0) {
+			public void uartRead(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void unknown(EventObject arg0) {
+			public void unknown(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void usbUartRead(EventObject arg0) {
+			public void usbUartRead(DroneEventObject arg0) {
 
 			}
 		};
@@ -698,7 +708,7 @@ public class SensordroneControl extends Activity {
 		dsListener = new DroneStatusListener() {
 
 			@Override
-			public void adcStatus(EventObject arg0) {
+			public void adcStatus(DroneEventObject arg0) {
 				// This is triggered when the status of the external ADC has
 				// been
 				// enable, disabled, or checked.
@@ -713,7 +723,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void altitudeStatus(EventObject arg0) {
+			public void altitudeStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.altitudeStatus) {
 					streamerArray[8].run();
 				}
@@ -721,36 +731,35 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void batteryVoltageStatus(EventObject arg0) {
+			public void batteryVoltageStatus(DroneEventObject arg0) {
 				// This is triggered when the battery voltage has been
 				// measured.
 				String bVoltage = String.format("%.2f",
 						droneApp.myDrone.batteryVoltage_Volts) + " V";
 				tvUpdate(bvValue, bVoltage);
-				// Set up the next measurement
-				bvStreamer.streamHandler.postDelayed(bvStreamer,
-						droneApp.streamingRate);
+                // We might need to update the rate due to graphing
+                bvStreamer.setRate(droneApp.streamingRate);
 			}
 
 			@Override
-			public void capacitanceStatus(EventObject arg0) {
+			public void capacitanceStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.capacitanceStatus) {
 					streamerArray[6].run();
 				}
 			}
 
 			@Override
-			public void chargingStatus(EventObject arg0) {
+			public void chargingStatus(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void customStatus(EventObject arg0) {
+			public void customStatus(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void humidityStatus(EventObject arg0) {
+			public void humidityStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.humidityStatus) {
 					streamerArray[1].run();
 				}
@@ -758,7 +767,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void irStatus(EventObject arg0) {
+			public void irStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.irTemperatureStatus) {
 					streamerArray[3].run();
 				}
@@ -766,7 +775,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void lowBatteryStatus(EventObject arg0) {
+			public void lowBatteryStatus(DroneEventObject arg0) {
 				// If we get a low battery, notify the user
 				// and disconnect
 
@@ -775,9 +784,12 @@ public class SensordroneControl extends Activity {
 				// so the myBlinker will trigger this once a second.
 				// calling myBlinker.disable() even sets LEDS off, which
 				// will trigger it...
-				if (lowbatNotify) {
+
+                // We wil also add in a voltage check, to allow users to use their
+                // Sensordrone a little more
+				if (lowbatNotify && droneApp.myDrone.batteryVoltage_Volts < 3.1) {
 					lowbatNotify = false; // Set true again in connectEvent
-					myBlinker.disable();
+					myBlinker.stop();
 					doOnDisconnect(); // run our disconnect routine
 					// Notify the user
 					tvUpdate(tvConnectionStatus, "Low Battery: Disconnected!");
@@ -787,12 +799,12 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void oxidizingGasStatus(EventObject arg0) {
+			public void oxidizingGasStatus(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void precisionGasStatus(EventObject arg0) {
+			public void precisionGasStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.precisionGasStatus) {
 					streamerArray[5].run();
 				}
@@ -800,7 +812,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void pressureStatus(EventObject arg0) {
+			public void pressureStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.pressureStatus) {
 					streamerArray[2].run();
 				}
@@ -808,12 +820,12 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void reducingGasStatus(EventObject arg0) {
+			public void reducingGasStatus(DroneEventObject arg0) {
 
 			}
 
 			@Override
-			public void rgbcStatus(EventObject arg0) {
+			public void rgbcStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.rgbcStatus) {
 					streamerArray[4].run();
 				}
@@ -821,7 +833,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void temperatureStatus(EventObject arg0) {
+			public void temperatureStatus(DroneEventObject arg0) {
 				if (droneApp.myDrone.temperatureStatus) {
 					streamerArray[0].run();
 				}
@@ -829,7 +841,7 @@ public class SensordroneControl extends Activity {
 			}
 
 			@Override
-			public void unknownStatus(EventObject arg0) {
+			public void unknownStatus(DroneEventObject arg0) {
 
 			}
 		};
@@ -845,15 +857,15 @@ public class SensordroneControl extends Activity {
 		onOffLayout.addView(tvConnectionStatus);
 		onOffLayout.addView(tvConnectInfo);
 
-		droneApp.myDrone.registerDroneEventListener(deListener);
-		droneApp.myDrone.registerDroneStatusListener(dsListener);
+		droneApp.myDrone.registerDroneListener(deListener);
+		droneApp.myDrone.registerDroneListener(dsListener);
 
 	}
 
 	/*
 	 * We will use some stuff from our Sensordrone Helper library
 	 */
-	public SDHelper myHelper = new SDHelper();
+	public DroneConnectionHelper myHelper = new DroneConnectionHelper();
 
 	@Override
 	public void onDestroy() {
@@ -863,8 +875,8 @@ public class SensordroneControl extends Activity {
 			// Try and nicely shut down
 			doOnDisconnect();
 
-			droneApp.myDrone.unregisterDroneEventListener(deListener);
-			droneApp.myDrone.unregisterDroneStatusListener(dsListener);
+			droneApp.myDrone.unregisterDroneListener(deListener);
+			droneApp.myDrone.unregisterDroneListener(dsListener);
 		}
 	}
 
@@ -912,7 +924,7 @@ public class SensordroneControl extends Activity {
 			public void run() {
 
 				// Turn off myBlinker
-				myBlinker.disable();
+				myBlinker.stop();
 
 				// Make sure the LEDs go off
 				if (droneApp.myDrone.isConnected) {
@@ -1014,7 +1026,7 @@ public class SensordroneControl extends Activity {
 		case R.id.menuScan:
 			if (!droneApp.myDrone.isConnected) {
 				myHelper.scanToConnect(droneApp.myDrone,
-						SensordroneControl.this, this, false);
+                        SensordroneControl.this, this, false);
 			} else {
 				quickMessage("Please disconnect first");
 			}

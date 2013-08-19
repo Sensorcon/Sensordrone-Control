@@ -6,3 +6,5 @@ libs/**
 proguard/**
 proguard-project.txt
 project.properties
+.idea/**
+**.iml

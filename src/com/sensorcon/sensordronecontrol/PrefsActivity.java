@@ -37,11 +37,11 @@ public class PrefsActivity extends Activity {
 		 * Get current values
 		 */
 		int currentTemperatureUnit = unitPreferences.getInt(
-				SDPreferences.TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+				SDPreferences.TEMPERATURE_UNIT, SDPreferences.FAHRENHEIT);
 		int currentPressureUnit = unitPreferences.getInt(
 				SDPreferences.PRESSURE_UNIT, SDPreferences.PASCAL);
 		int currentIRTemperatureUnit = unitPreferences.getInt(
-				SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FARENHEIT);
+				SDPreferences.IR_TEMPERATURE_UNIT, SDPreferences.FAHRENHEIT);
 		int currentAltitudeUnit = unitPreferences.getInt(
 				SDPreferences.ALTITUDE_UNIT, SDPreferences.FEET);
 
@@ -64,50 +64,50 @@ public class PrefsActivity extends Activity {
 		prefLayout.addView(temperatureTV);
 		// Radio Buttons
 		RadioGroup temperatureGroup = new RadioGroup(getApplicationContext());
-		RadioButton tempCelcius = new RadioButton(getApplicationContext());
-		tempCelcius.setText("Celcius");
-		tempCelcius.setTextColor(buttonTextColor);
-		RadioButton tempFareneit = new RadioButton(getApplicationContext());
-		tempFareneit.setText("Farenheit");
-		tempFareneit.setTextColor(buttonTextColor);
+		RadioButton tempCelsius = new RadioButton(getApplicationContext());
+		tempCelsius.setText("Celsius");
+		tempCelsius.setTextColor(buttonTextColor);
+		RadioButton tempFahrenheit = new RadioButton(getApplicationContext());
+		tempFahrenheit.setText("Fahrenheit");
+		tempFahrenheit.setTextColor(buttonTextColor);
 		RadioButton tempKelvin = new RadioButton(getApplicationContext());
 		tempKelvin.setText("Kelvin");
 		tempKelvin.setTextColor(buttonTextColor);
-		temperatureGroup.addView(tempFareneit);
-		temperatureGroup.addView(tempCelcius);
+		temperatureGroup.addView(tempFahrenheit);
+		temperatureGroup.addView(tempCelsius);
 		temperatureGroup.addView(tempKelvin);
 		prefLayout.addView(temperatureGroup);
 		// What is selected?
-		if (currentTemperatureUnit == SDPreferences.FARENHEIT) {
-			tempFareneit.setChecked(true);
-		} else if (currentTemperatureUnit == SDPreferences.CELCIUS) {
-			tempCelcius.setChecked(true);
+		if (currentTemperatureUnit == SDPreferences.FAHRENHEIT) {
+			tempFahrenheit.setChecked(true);
+		} else if (currentTemperatureUnit == SDPreferences.CELSIUS) {
+			tempCelsius.setChecked(true);
 		} else if (currentTemperatureUnit == SDPreferences.KELVIN) {
 			tempKelvin.setChecked(true);
 		}
 		// On Select
-		tempCelcius.setOnClickListener(new OnClickListener() {
+		tempCelsius.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				// Shared preferences use a key, value system.
-				// Our keys and values are statically defined in the
-				// SDPreference class
-				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
-						SDPreferences.CELCIUS);
-				prefEditor.apply(); // Preferences aren't updated until there is
-									// a commit/apply.
-			}
-		});
-		tempFareneit.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Shared preferences use a key, value system.
+                // Our keys and values are statically defined in the
+                // SDPreference class
+                prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
+                        SDPreferences.CELSIUS);
+                prefEditor.apply(); // Preferences aren't updated until there is
+                // a commit/apply.
+            }
+        });
+		tempFahrenheit.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
-						SDPreferences.FARENHEIT);
-				prefEditor.apply();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                prefEditor.putInt(SDPreferences.TEMPERATURE_UNIT,
+                        SDPreferences.FAHRENHEIT);
+                prefEditor.apply();
+            }
+        });
 		tempKelvin.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -141,9 +141,9 @@ public class PrefsActivity extends Activity {
 		irGroup.addView(irCelcius);
 		irGroup.addView(irKelvin);
 		// What was selected?
-		if (currentIRTemperatureUnit == SDPreferences.FARENHEIT) {
+		if (currentIRTemperatureUnit == SDPreferences.FAHRENHEIT) {
 			irFarenheit.setChecked(true);
-		} else if (currentIRTemperatureUnit == SDPreferences.CELCIUS) {
+		} else if (currentIRTemperatureUnit == SDPreferences.CELSIUS) {
 			irCelcius.setChecked(true);
 		} else if (currentIRTemperatureUnit == SDPreferences.KELVIN) {
 			irKelvin.setChecked(true);
@@ -154,7 +154,7 @@ public class PrefsActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT,
-						SDPreferences.FARENHEIT);
+						SDPreferences.FAHRENHEIT);
 				prefEditor.apply();
 			}
 		});
@@ -163,7 +163,7 @@ public class PrefsActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				prefEditor.putInt(SDPreferences.IR_TEMPERATURE_UNIT,
-						SDPreferences.CELCIUS);
+						SDPreferences.CELSIUS);
 				prefEditor.apply();
 			}
 		});

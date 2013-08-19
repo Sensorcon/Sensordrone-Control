@@ -48,7 +48,7 @@ public final class AlertInfo {
 				+
 				//
 				"Disconnect:\n"
-				+ "This will disconnect from the Sensordrone you are currently conencted to.\n\n"
+				+ "This will disconnect from the Sensordrone you are currently connected to.\n\n"
 				+ "General Info:\n"
 				+ "If the connection to the Sensordrone is lost, this app will try "
 				+ "to automatically re-connect once.\n\n"
@@ -110,17 +110,17 @@ public final class AlertInfo {
 		AlertDialog.Builder alert = new AlertDialog.Builder(activity);
 		alert.setTitle("Sensor Info");
 		alert.setMessage("Temperature (Ambient):\n"
-				+ "This is the Temperature of the environement your Sensordrone "
+				+ "This is the Temperature of the environment your Sensordrone "
 				+ "is currently in.\n\n"
 				+
 				//
 				"Humidity:\n"
-				+ "This is the Percent Relative Humidity of the environement your Sensordrone "
+				+ "This is the Percent Relative Humidity of the environment your Sensordrone "
 				+ "is currently in.\n\n"
 				+
 				//
 				"Pressure:\n"
-				+ "This is the Pressure of the environement your Sensordrone "
+				+ "This is the Pressure of the environment your Sensordrone "
 				+ "is currently in.\n\n"
 				+
 				//
@@ -130,10 +130,10 @@ public final class AlertInfo {
 				+
 				//
 				"Illuminance:\n"
-				+ "The Sensordrone is eqiupped with an RGB color sensor. From these values, "
-				+ "you can calculate things like Color, Color Temeprature, and Illuminance. "
+				+ "The Sensordrone is equipped with an RGB color sensor. From these values, "
+				+ "you can calculate things like Color, Color Temperature, and Illuminance. "
 				+ "The Lux value provided is calibrated for a (mostly) broadband light source "
-				+ "(like incandescent and flurescent bulbs), and won't "
+				+ "(like incandescent and fluorescent bulbs), and won't "
 				+ "work well for narrow band light sources like LEDs "
 				+ "(without a separate calibration algorithm).\n\n"
 				+
@@ -159,10 +159,10 @@ public final class AlertInfo {
 				+
 				//
 				"Altitude:\n"
-				+ "Altitude (above sea level) can be thought of as a psuedo-sensor. The altitude "
+				+ "Altitude (above sea level) can be thought of as a pseudo-sensor. The altitude "
 				+ "is calculated from the current pressure referenced to pressure "
 				+ "at sea-level. Changes in the weather can cause changes in your calculated "
-				+ "altitude above sea leavel.\n\n"
+				+ "altitude above sea level.\n\n"
 				+ "Battery Voltage:\n"
 				+ "This is the Sensordrone's current battery voltage level. The Sensordrone uses "
 				+ "a Lithium Polymer (LiPo) battery, and therefore will typically read between 4.2 "
