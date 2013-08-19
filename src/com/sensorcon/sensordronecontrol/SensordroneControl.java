@@ -609,7 +609,14 @@ public class SensordroneControl extends Activity {
 							String.format("%.2f",
 									droneApp.myDrone.pressure_Pascals / 1000)
 									+ " kPa");
-				} else if (pref == SDPreferences.ATMOSPHERE) {
+				}  else if (pref == SDPreferences.HECTOPASCAL) {
+                    tvUpdate(
+                            tvSensorValues[2],
+                            String.format("%.2f",
+                                    droneApp.myDrone.pressure_Pascals / 100)
+                                    + " hPa");
+
+                } else if (pref == SDPreferences.ATMOSPHERE) {
 					tvUpdate(
 							tvSensorValues[2],
 							String.format("%.2f",

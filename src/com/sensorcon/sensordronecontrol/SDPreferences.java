@@ -34,6 +34,7 @@ public class SDPreferences {
 	static int ATMOSPHERE = 2;
 	static int MMHG = 3;
 	static int INHG = 4;
+    static int HECTOPASCAL = 5;
 	
 	// Distance (Altitude)
 	static int FEET = 0;

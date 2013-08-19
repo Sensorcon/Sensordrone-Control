@@ -189,6 +189,9 @@ public class PrefsActivity extends Activity {
 		RadioButton presPascal = new RadioButton(getApplicationContext());
 		presPascal.setText("Pascal");
 		presPascal.setTextColor(buttonTextColor);
+        RadioButton presHPascal = new RadioButton(getApplicationContext());
+        presHPascal.setText("Hectopascal");
+        presHPascal.setTextColor(buttonTextColor);
 		RadioButton presKPascal = new RadioButton(getApplicationContext());
 		presKPascal.setText("Kilopascal");
 		presKPascal.setTextColor(buttonTextColor);
@@ -202,6 +205,7 @@ public class PrefsActivity extends Activity {
 		presInHg.setText("inHg");
 		presInHg.setTextColor(buttonTextColor);
 		pressureGroup.addView(presPascal);
+        pressureGroup.addView(presHPascal);
 		pressureGroup.addView(presKPascal);
 		pressureGroup.addView(presAtm);
 		pressureGroup.addView(presmmHg);
@@ -217,7 +221,9 @@ public class PrefsActivity extends Activity {
 			presmmHg.setChecked(true);
 		} else if (currentPressureUnit == SDPreferences.INHG) {
 			presInHg.setChecked(true);
-		}
+		}  else if (currentPressureUnit == SDPreferences.HECTOPASCAL) {
+            presHPascal.setChecked(true);
+        }
 
 		// Listeners
 		presPascal.setOnClickListener(new OnClickListener() {
@@ -229,6 +235,13 @@ public class PrefsActivity extends Activity {
 				prefEditor.apply();
 			}
 		});
+        presHPascal.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefEditor.putInt(SDPreferences.PRESSURE_UNIT, SDPreferences.HECTOPASCAL);
+                prefEditor.apply();
+            }
+        });
 		presKPascal.setOnClickListener(new OnClickListener() {
 
 			@Override

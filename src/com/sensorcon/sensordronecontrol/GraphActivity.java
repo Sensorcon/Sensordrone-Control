@@ -308,8 +308,8 @@ public class GraphActivity extends Activity {
 
 		// Graph formatting
 		dronePlot = (XYPlot) findViewById(R.id.dynamicPlot);
-        //TODO this constructor ahs added an option. Make sure it still works.
-        // Line, Vertex, Fill, PointLabelFormater
+        // This constructor has added an option. Passing it an extra null still seems to work
+        // Line, Vertex, Fill, PointLabelFormatter
 		LineAndPointFormatter lF = new LineAndPointFormatter(Color.rgb(0, 0, 0), Color.rgb(0, 255, 0), null,null);
         dronePlot.addSeries(droneValues, lF);
 		dronePlot.setDomainStepValue(1);
