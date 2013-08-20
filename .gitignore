@@ -8,3 +8,4 @@ proguard-project.txt
 project.properties
 .idea/**
 **.iml
+out/**
