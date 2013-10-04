@@ -894,7 +894,7 @@ public class SensordroneControl extends Activity {
                 msg += "Other changes include:\n\n";
                 msg += " A 'What's New' dialog for updates.\n\n";
                 msg += "Fixed a bug related to reading the battery voltage.\n\n";
-                msg += "Lowered the threshold on battery voltage for automatically disconnect the Sensordrone from the app\n\n";
+                msg += "Lowered the threshold on battery voltage for automatically disconnecting the Sensordrone from the app\n\n";
                 msg += "Fixed some typos.\n\n";
                 msg += "Added in hPa units for pressure";
 
