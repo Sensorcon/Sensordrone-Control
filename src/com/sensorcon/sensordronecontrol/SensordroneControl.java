@@ -896,6 +896,7 @@ public class SensordroneControl extends Activity {
                 msg += "Fixed a bug related to reading the battery voltage.\n\n";
                 msg += "Lowered the threshold on battery voltage for automatically disconnect the Sensordrone from the app\n\n";
                 msg += "Fixed some typos.\n\n";
+                msg += "Added in hPa units for pressure";
 
                 Dialog dialog;
                 AlertDialog.Builder builder = new AlertDialog.Builder(SensordroneControl.this);
@@ -1069,7 +1070,7 @@ public class SensordroneControl extends Activity {
 					}
 				} else {
 					// Notify the user if no previous MAC was found.
-					quickMessage("Last MAC not found... Please scan");
+					quickMessage("Last MAC not found... Please connect once");
 				}
 			} else {
 				quickMessage("Already connected...");
