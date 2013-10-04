@@ -34,16 +34,19 @@ public final class AlertInfo {
 	public static void connectionInfo(final Activity activity) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(activity);
 		alert.setTitle("Connections");
-		alert.setMessage("Scan to Connect:\n"
-				+ "This will start scanning for Sensordrones, "
-				+ "and populate a list. Selecting a Sensordrone from the list will "
-				+ "attempt to connect.\n\n"
+		alert.setMessage("Connect:\n"
+                + "This will display a list of Sensordrones paired with your device. "
+				+ "Selecting a Sensordrone from the list will "
+				+ "attempt to connect. "
+                + "On most devices, pairing can be done via the system Settings app\n\n"
+                + "Settings -> Bluetooth -> Search For Devices\n\n"
+                + "The pairing code for a Sensordrone is 0000 (four zeroes)\n\n"
 				+
 				//
 				"Re-Connect:\n"
 				+ "Once you have connected with a Sensordrone, it remembers the last device "
 				+ "it was connected to. After disconnecting, clicking Re-Connect will attempt to re-connect with "
-				+ "it without having to scan for the device again. As of version 1.2, this is stored a preferences file"
+				+ "it without having to select the device from a list again. As of version 1.2, this is stored a preferences file"
 				+ " and you can use re-connect even if you've recently closed the app.\n\n"
 				+
 				//
