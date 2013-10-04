@@ -2,9 +2,15 @@ package com.sensorcon.sensordronecontrol;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -867,6 +873,55 @@ public class SensordroneControl extends Activity {
 		droneApp.myDrone.registerDroneListener(deListener);
 		droneApp.myDrone.registerDroneListener(dsListener);
 
+        // Display a "What's New" Dialog if we've updated.
+        // Get the current version code
+        PackageInfo pinfo = null;
+        try {
+            pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            pinfo = null;
+        }
+        if (pinfo != null) {
+            // Current Version
+            final int currentVersionNumber = pinfo.versionCode;
+            // Last Known Version
+            int lastVersionNumber = sdcPreferences.getInt(SDPreferences.LAST_KNOWN_VERSION_CODE, -1);
+            if (currentVersionNumber != lastVersionNumber) {
+                // What's new?
+                String msg = "IMPORTANT!\n\n";
+                msg += "We have changed how the app connects to your Sensordrone! To connect to a Sensordrone, you will now need to pair the Sensordrone with your Android device via " +
+                       "the System Settings!\n\n";
+                msg += "Other changes include:\n\n";
+                msg += " A 'What's New' dialog for updates.\n\n";
+                msg += "Fixed a bug related to reading the battery voltage.\n\n";
+                msg += "Lowered the threshold on battery voltage for automatically disconnect the Sensordrone from the app\n\n";
+                msg += "Fixed some typos.\n\n";
+
+                Dialog dialog;
+                AlertDialog.Builder builder = new AlertDialog.Builder(SensordroneControl.this);
+                builder.setTitle("What's New");
+                builder.setMessage(msg);
+                builder.setPositiveButton("Display next time", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //
+                    }
+                });
+                builder.setNegativeButton("Don't remind me again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Editor editor = sdcPreferences.edit();
+                        editor.putInt(SDPreferences.LAST_KNOWN_VERSION_CODE, currentVersionNumber);
+                        editor.commit();
+                    }
+                });
+                dialog = builder.create();
+                dialog.show();
+            }
+
+
+        }
+
 	}
 
 	/*
@@ -1032,8 +1087,10 @@ public class SensordroneControl extends Activity {
 			break;
 		case R.id.menuScan:
 			if (!droneApp.myDrone.isConnected) {
-				myHelper.scanToConnect(droneApp.myDrone,
-                        SensordroneControl.this, this, false);
+                myHelper.connectFromPairedDevices(droneApp.myDrone, SensordroneControl.this);
+                // We now just use paired devices instead of scanning every time
+//				myHelper.scanToConnect(droneApp.myDrone,
+//                        SensordroneControl.this, this, false);
 			} else {
 				quickMessage("Please disconnect first");
 			}
@@ -1062,4 +1119,18 @@ public class SensordroneControl extends Activity {
 		return true;
 	}
 
+    private void genericDialog(Context context, String title, String msg) {
+        Dialog dialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setMessage(msg);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //
+            }
+        });
+        dialog = builder.create();
+        dialog.show();
+    }
 }

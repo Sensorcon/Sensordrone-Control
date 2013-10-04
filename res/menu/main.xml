@@ -2,7 +2,7 @@
 
     <item
         android:id="@+id/menuScan"
-        android:title="Scan to Connect">
+        android:title="Connect">
     </item>
     <item
         android:id="@+id/menuConnect"

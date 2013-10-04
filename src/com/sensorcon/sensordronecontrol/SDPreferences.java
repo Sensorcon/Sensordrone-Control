@@ -42,7 +42,8 @@ public class SDPreferences {
 	static int METER = 2;
 	static int KILOMETER = 3;
 	
-	
+
+    static String LAST_KNOWN_VERSION_CODE = "LAST_KNOWN_VERSION_CODE";
 	
 	
 }
